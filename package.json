@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "@elysiajs/jwt": "^1.4.0",
+        "@elysiajs/static": "^1.4.7",
         "@prisma/adapter-neon": "^7.0.1",
         "@prisma/client": "^7.0.1",
         "dotenv": "^17.2.3",
