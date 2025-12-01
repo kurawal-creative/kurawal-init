@@ -9,8 +9,6 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
-        env:
-            DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
         steps:
             - uses: actions/checkout@v4
@@ -26,3 +24,5 @@ jobs:
                   file: ./Dockerfile
                   push: true
                   tags: ${{ secrets.DOCKERHUB_USERNAME }}/kurawal-init:latest
+                  build-args: DATABASE_URL=${{ secrets.DATABASE_URL }}
+
