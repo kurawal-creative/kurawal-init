@@ -1,17 +1,17 @@
-FROM oven/bun:latest AS builder
+FROM timbru31/node-chrome:jod AS builder
 
 WORKDIR /client
 
 COPY client/package.json ./package.json
-COPY client/bun.lock ./bun.lock
 
+RUN npm i bun -g
 RUN bun install
 
 COPY client/ ./
 
 RUN bun run build
 
-FROM oven/bun:latest
+FROM timbru31/node-chrome:jod
 
 WORKDIR /app
 
@@ -19,6 +19,7 @@ COPY . .
 
 COPY --from=builder /client/dist ./client/dist
 
+RUN npm i bun -g
 RUN bun install
 
 EXPOSE 3000
