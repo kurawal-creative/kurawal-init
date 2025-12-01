@@ -15,6 +15,9 @@ FROM timbru31/node-chrome:jod
 
 WORKDIR /app
 
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
 COPY . .
 
 COPY --from=builder /client/dist ./client/dist
