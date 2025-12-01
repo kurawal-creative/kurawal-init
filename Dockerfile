@@ -2,11 +2,13 @@ FROM oven/bun:latest AS builder
 
 WORKDIR /app
 
-COPY client/ ./client/
+COPY client/package.json client/bun.lock ./client/
 
 WORKDIR /client
 
 RUN bun install
+
+COPY client/ ./
 
 RUN bun run build
 
