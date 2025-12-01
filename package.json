@@ -1,15 +1,22 @@
 {
-  "name": "kurawal-init",
-  "version": "1.0.50",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
-  },
-  "dependencies": {
-    "elysia": "latest"
-  },
-  "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+    "name": "kurawal-init",
+    "version": "1.0.50",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "bun run --watch src/index.ts",
+        "seed": "bun run prisma/seed.ts"
+    },
+    "dependencies": {
+        "@elysiajs/jwt": "^1.4.0",
+        "@prisma/adapter-neon": "^7.0.1",
+        "@prisma/client": "^7.0.1",
+        "dotenv": "^17.2.3",
+        "elysia": "latest",
+        "puppeteer-core": "^24.31.0"
+    },
+    "devDependencies": {
+        "bun-types": "latest",
+        "prisma": "^7.0.1"
+    },
+    "module": "src/index.js"
 }
