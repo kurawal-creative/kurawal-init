@@ -1,10 +1,9 @@
 FROM oven/bun:latest AS builder
 
-WORKDIR /app
-
-COPY client/package.json client/bun.lock ./client/
-
 WORKDIR /client
+
+COPY client/package.json ./package.json
+COPY client/bun.lock ./bun.lock
 
 RUN bun install
 
