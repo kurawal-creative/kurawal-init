@@ -2,7 +2,7 @@ services:
     app:
         build: .
         ports:
-            - "3001:3001"
+            - "4000:3000"
         volumes:
             - ./user-data1:/app/user-data1
             - ./user_data2:/app/user_data2
