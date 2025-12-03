@@ -10,7 +10,7 @@ export type ApiResponse<T = any> = {
 }
 
 export type User = {
-  id: number
+  id: string
   username: string
   email: string
   name?: string

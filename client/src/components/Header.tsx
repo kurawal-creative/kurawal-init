@@ -2,11 +2,11 @@ import { Link, useNavigate } from '@tanstack/react-router'
 
 import { useState } from 'react'
 import { Home, Menu, X } from 'lucide-react'
-import { useAuth } from '../lib/auth'
+import { useAuth } from '@/contexts/auth-context'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
-  const { user, logout } = useAuth()
+  const { user, signOut } = useAuth()
   const navigate = useNavigate()
 
   return (
@@ -67,7 +67,7 @@ export default function Header() {
           {user ? (
             <button
               onClick={() => {
-                logout()
+                signOut()
                 setIsOpen(false)
               }}
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2 w-full text-left"
