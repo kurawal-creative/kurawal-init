@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -20,7 +20,7 @@ function GoogleAccountsPage() {
   const [email, setEmail] = useState('')
 
   const [loading, setLoading] = useState(false)
-  const [accounts, setAccounts] = useState<GoogleAccount[]>([])
+  const [accounts, setAccounts] = useState<Array<GoogleAccount>>([])
 
   // Load accounts
   useEffect(() => {

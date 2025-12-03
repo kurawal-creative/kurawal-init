@@ -2,7 +2,7 @@ import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 import { AdminLayout } from '@/components/layouts/admin-layout'
 
 export const Route = createFileRoute('/admin')({
-  beforeLoad: ({ context, location }) => {
+  beforeLoad: ({ location }) => {
     // Check if user is authenticated
     const token = localStorage.getItem('token')
     if (!token) {

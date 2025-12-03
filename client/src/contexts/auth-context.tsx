@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import type { ReactNode } from 'react';
-import type { User } from '@/lib/api-client';
+import { createContext, useContext, useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
+import type { User } from '@/lib/api-client'
 import { apiClient } from '@/lib/api-client'
 
 interface AuthContextType {
@@ -8,7 +8,12 @@ interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
   signIn: (email: string, password: string) => Promise<void>
-  signUp: (username: string, email: string, password: string, name?: string) => Promise<void>
+  signUp: (
+    username: string,
+    email: string,
+    password: string,
+    name?: string,
+  ) => Promise<void>
   signOut: () => void
   refreshProfile: () => Promise<void>
 }
@@ -46,7 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(response.user)
   }
 
-  const signUp = async (username: string, email: string, password: string, name?: string) => {
+  const signUp = async (
+    username: string,
+    email: string,
+    password: string,
+    name?: string,
+  ) => {
     const response = await apiClient.signUp({ username, email, password, name })
     setUser(response.user)
   }

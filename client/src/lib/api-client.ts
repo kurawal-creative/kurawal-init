@@ -196,7 +196,7 @@ class ApiClient {
     eventSource.addEventListener('message', (e) => {
       try {
         const data = JSON.parse(e.data)
-        callbacks.onMessage?.(data)
+        callbacks.onChunk?.(data)
       } catch (error) {
         console.error('Failed to parse SSE message:', error)
       }

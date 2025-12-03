@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { Key, Plus, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Key, Plus, Trash2 } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/api-keys')({
   component: ApiKeysPage,
@@ -21,7 +21,7 @@ function ApiKeysPage() {
   const [name, setName] = useState('')
   const [key, setKey] = useState('')
   const [loading, setLoading] = useState(false)
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([])
+  const [apiKeys, setApiKeys] = useState<Array<ApiKey>>([])
 
   useEffect(() => {
     fetchApiKeys()
