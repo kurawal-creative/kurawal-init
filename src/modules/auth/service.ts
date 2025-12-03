@@ -43,25 +43,45 @@ export const jwtPlugin = new Elysia({ name: "auth.jwt" }).use(
 // ============================================
 // Authentication Plugin - Request Dependent Service
 // ============================================
-export const authenticate = new Elysia({ name: "auth.authenticate" }).use(jwtPlugin).derive(async ({ jwt, headers }) => {
+// Authenticated user type for better type safety
+export interface AuthenticatedUser {
+    id: string;
+    email: string;
+}
+
+export const authenticate = new Elysia({ name: "auth.authenticate" }).use(jwtPlugin).derive(async ({ jwt, headers }): Promise<{ user: AuthenticatedUser }> => {
     const authHeader = headers.authorization;
 
     if (!authHeader) {
-        throw new AppError(401, "Authorization header missing");
+        throw new AppError(401, "Authorization header is required");
     }
 
-    const token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+    if (!authHeader.startsWith("Bearer ")) {
+        throw new AppError(401, "Authorization header must be in format: Bearer <token>");
+    }
 
-    const payload = (await jwt.verify(token)) as JWTPayload | false;
+    const token = authHeader.substring(7).trim();
+
+    if (!token) {
+        throw new AppError(401, "Token is required in Authorization header");
+    }
+
+    const payload = await jwt.verify(token);
 
     if (!payload) {
         throw new AppError(401, "Invalid or expired token");
     }
 
+    // Validate payload structure with proper type assertion
+    const jwtPayload = payload as unknown as JWTPayload;
+    if (!jwtPayload.id || !jwtPayload.email) {
+        throw new AppError(401, "Invalid token payload");
+    }
+
     return {
         user: {
-            id: payload.id as string,
-            email: payload.email,
+            id: jwtPayload.id,
+            email: jwtPayload.email,
         },
     };
 });
@@ -142,10 +162,14 @@ export abstract class AuthService {
         return this.toUserDTO(user);
     }
 
-    // Get user by ID
+    // Get user by ID with better error handling
     static async getUserById(id: string): Promise<UserDTO> {
+        if (!id || typeof id !== "string" || id.trim() === "") {
+            throw new AppError(400, "Valid user ID is required");
+        }
+
         const user = await prisma.user.findUnique({
-            where: { id },
+            where: { id: id.trim() },
         });
 
         if (!user) {

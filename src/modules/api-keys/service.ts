@@ -111,8 +111,9 @@ export abstract class ApiKeysService {
             await prisma.apiKey.delete({
                 where: { id },
             });
-        } catch (err: any) {
-            if (err?.code === "P2025") {
+        } catch (err) {
+            // Handle Prisma errors properly
+            if (err && typeof err === "object" && "code" in err && err.code === "P2025") {
                 return;
             }
             throw err;

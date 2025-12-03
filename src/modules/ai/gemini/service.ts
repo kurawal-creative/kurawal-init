@@ -8,11 +8,21 @@ import { decrypt } from "@/lib/encryption";
 /**
  * Helper functions for cookie serialization
  */
-function serializeCookies(cookies: any[]): string {
+
+interface CookieData {
+    name: string;
+    value: string;
+    domain?: string;
+    path?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+}
+
+function serializeCookies(cookies: CookieData[]): string {
     return cookies.map((c) => `${c.name}=${c.value}`).join("; ");
 }
 
-function parseCookies(cookieString: string): any[] {
+function parseCookies(cookieString: string): CookieData[] {
     return cookieString.split(";").map((c) => {
         const [name, value] = c.trim().split("=");
         return {
