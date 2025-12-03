@@ -7,7 +7,7 @@ import { AuthModel } from "./model";
 
 // JWT Payload interface
 interface JWTPayload {
-    id: number;
+    id: string;
     email: string;
     iat?: number;
     exp?: number;
@@ -15,11 +15,19 @@ interface JWTPayload {
 
 // User DTO interface
 interface UserDTO {
-    id: number;
+    id: string;
     username: string;
     email: string;
     name?: string;
     avatar?: string;
+}
+
+// Auth Context interface - exported for type-safe usage
+export interface AuthContext {
+    user: {
+        id: string;
+        email: string;
+    };
 }
 
 // ============================================
@@ -52,7 +60,7 @@ export const authenticate = new Elysia({ name: "auth.authenticate" }).use(jwtPlu
 
     return {
         user: {
-            id: payload.id,
+            id: payload.id as string,
             email: payload.email,
         },
     };
@@ -63,7 +71,7 @@ export const authenticate = new Elysia({ name: "auth.authenticate" }).use(jwtPlu
 // ============================================
 export abstract class AuthService {
     // Transform Prisma user to DTO
-    private static toUserDTO(user: { id: number; username: string; email: string; name: string | null; avatar: string | null }): UserDTO {
+    private static toUserDTO(user: { id: string; username: string; email: string; name: string | null; avatar: string | null }): UserDTO {
         return {
             id: user.id,
             username: user.username,

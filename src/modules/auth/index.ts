@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { AuthService } from "./service";
+import { AuthService, AuthContext } from "./service";
 import { AuthModel } from "./model";
 import { jwtPlugin, authenticate } from "./service";
 import { AppError } from "@/middlewares/error-handler";
@@ -74,30 +74,34 @@ export const auth = new Elysia({ prefix: "/api/auth" })
             },
         },
     )
-    .use(authenticate)
-    .get(
-        "/profile",
-        async (context: any) => {
-            try {
-                const profile = await AuthService.getUserById(context.user.id);
+    .group("/", (app) =>
+        app.use(authenticate).get(
+            "/profile",
+            async (context) => {
+                try {
+                    // TypeScript inference limitation: derive context from authenticate plugin
+                    // context.user is available at runtime from authenticate.derive()
+                    // @ts-expect-error - Elysia derive context type inference limitation
+                    const profile = await AuthService.getUserById(context.user.id);
 
-                return {
-                    success: true,
-                    data: profile,
-                };
-            } catch (error) {
-                if (error instanceof AppError) {
-                    throw error;
+                    return {
+                        success: true,
+                        data: profile,
+                    };
+                } catch (error) {
+                    if (error instanceof AppError) {
+                        throw error;
+                    }
+                    throw new AppError(500, error instanceof Error ? error.message : "Failed to get profile");
                 }
-                throw new AppError(500, error instanceof Error ? error.message : "Failed to get profile");
-            }
-        },
-        {
-            response: AuthModel.profileResponse,
-            detail: {
-                summary: "Get profile",
-                description: "Get authenticated user's profile",
-                tags: ["Auth"],
             },
-        },
+            {
+                response: AuthModel.profileResponse,
+                detail: {
+                    summary: "Get profile",
+                    description: "Get authenticated user's profile",
+                    tags: ["Auth"],
+                },
+            },
+        ),
     );

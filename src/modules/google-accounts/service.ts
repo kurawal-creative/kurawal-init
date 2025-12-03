@@ -130,10 +130,11 @@ export abstract class GoogleAccountsService {
             const cookies = await page.cookies();
             const cookie = JSON.stringify(cookies);
 
-            // Simpan ke database tanpa password
+            // Simpan ke database dengan password kosong (karena login otomatis via browser)
             const created = await prisma.googleAccount.create({
                 data: {
                     email,
+                    password: "",
                     cookie,
                 },
             });
