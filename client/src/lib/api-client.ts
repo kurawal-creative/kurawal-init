@@ -53,6 +53,7 @@ class ApiClient {
   private token: string | null = null
 
   constructor() {
+    console.log('🚀 Initializing API client...')
     this.client = axios.create({
       baseURL: '/api',
       headers: {
@@ -62,6 +63,10 @@ class ApiClient {
 
     // Load token from localStorage
     this.token = localStorage.getItem('auth_token')
+    console.log(
+      '💾 Loaded token from localStorage:',
+      this.token ? 'Token exists' : 'No token',
+    )
     if (this.token) {
       this.setAuthHeader(this.token)
     }
@@ -82,16 +87,19 @@ class ApiClient {
 
   private setAuthHeader(token: string) {
     this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    console.log('🔐 Auth header set:', `Bearer ${token.substring(0, 20)}...`)
   }
 
   private clearAuthHeader() {
     delete this.client.defaults.headers.common['Authorization']
+    console.log('🗑️ Auth header cleared')
   }
 
   setToken(token: string) {
     this.token = token
     localStorage.setItem('auth_token', token)
     this.setAuthHeader(token)
+    console.log('💾 Token saved to localStorage')
   }
 
   clearAuth() {
@@ -106,11 +114,13 @@ class ApiClient {
 
   // Auth endpoints
   async signIn(data: SignInRequest): Promise<AuthResponse> {
+    console.log('🔐 Signing in...')
     const response = await this.client.post<ApiResponse<AuthResponse>>(
       '/auth/signin',
       data,
     )
     if (response.data.success && response.data.data) {
+      console.log('✅ Sign in successful')
       this.setToken(response.data.data.token)
       return response.data.data
     }
@@ -118,11 +128,13 @@ class ApiClient {
   }
 
   async signUp(data: SignUpRequest): Promise<AuthResponse> {
+    console.log('📝 Signing up...')
     const response = await this.client.post<ApiResponse<AuthResponse>>(
       '/auth/signup',
       data,
     )
     if (response.data.success && response.data.data) {
+      console.log('✅ Sign up successful')
       this.setToken(response.data.data.token)
       return response.data.data
     }
@@ -130,8 +142,11 @@ class ApiClient {
   }
 
   async getProfile(): Promise<User> {
+    console.log('👤 Getting profile...')
+    console.log('📡 Request headers:', this.client.defaults.headers.common)
     const response = await this.client.get<ApiResponse<User>>('/auth/profile')
     if (response.data.success && response.data.data) {
+      console.log('✅ Profile loaded')
       return response.data.data
     }
     throw new Error(response.data.error || 'Failed to get profile')
@@ -142,6 +157,7 @@ class ApiClient {
     data: KimiQueryRequest,
     apiKey: string,
   ): Promise<KimiResponse> {
+    console.log('🤖 Querying Kimi...')
     const response = await this.client.post<ApiResponse<KimiResponse>>(
       '/ai/kimi',
       data,
@@ -152,6 +168,7 @@ class ApiClient {
       },
     )
     if (response.data.success && response.data.data) {
+      console.log('✅ Kimi query successful')
       return response.data.data
     }
     throw new Error(response.data.error || 'Kimi query failed')
@@ -162,6 +179,7 @@ class ApiClient {
     prompt: string,
     apiKey: string,
   ): Promise<Blob> {
+    console.log('🎨 Generating Gemini image...')
     const formData = new FormData()
     if (image) {
       formData.append('image', image)
@@ -176,6 +194,7 @@ class ApiClient {
       responseType: 'blob',
     })
 
+    console.log('✅ Gemini image generated')
     return response.data
   }
 
