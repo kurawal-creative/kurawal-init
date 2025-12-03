@@ -118,7 +118,7 @@ export class GeminiService {
         try {
             // Load cookie dari database
 
-            await page.setUserAgent({ userAgent: this.USER_AGENT });
+            await page.setUserAgent(this.USER_AGENT);
 
             try {
                 const cookies = JSON.parse(account.cookie);
@@ -221,18 +221,18 @@ export class GeminiService {
         await page.waitForSelector(textareaSelector);
         await page.type(textareaSelector, prompt);
 
-        await page.waitForSelector('button[aria-label="Run"]');
-        await page.click('button[aria-label="Run"]');
+        await page.waitForSelector(".mat-icon");
+        await page.click(".mat-icon");
     }
 
     private static async waitForGeneration(page: Page): Promise<void> {
         try {
-            await page.waitForSelector('button[aria-label="Run"][aria-disabled="true"]', {
-                visible: true,
+            await page.waitForSelector(".mat-icon", {
+                hidden: true,
                 timeout: 10000,
             });
 
-            await page.waitForSelector('button[aria-label="Run"][aria-disabled="false"]', {
+            await page.waitForSelector(".mat-icon", {
                 visible: true,
                 timeout: GeminiService.TIMEOUT,
             });

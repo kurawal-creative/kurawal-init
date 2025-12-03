@@ -116,8 +116,9 @@ export abstract class GoogleAccountsService {
         try {
             const client = await page.target().createCDPSession();
             await client.send("Network.clearBrowserCookies");
+
             await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 OPR/124.0.0.0");
-            await page.goto("https://aistudio.google.com/prompts/new_chat?model=gemini-2.5-flash-image", { waitUntil: "domcontentloaded" });
+            await page.goto("https://aistudio.google.com/prompts/new_chat?model=gemini-2.5-flash-image");
 
             await (await page.waitForSelector('input[type="email"]', { visible: true }))?.type(email);
             await page.keyboard.press("Enter");
