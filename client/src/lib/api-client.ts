@@ -71,6 +71,24 @@ class ApiClient {
       this.setAuthHeader(this.token)
     }
 
+    // Request interceptor to ensure Authorization header is always set
+    this.client.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('auth_token')
+        if (token) {
+          config.headers['Authorization'] = `Bearer ${token}`
+          console.log('🔒 Request interceptor: Authorization header added')
+        } else {
+          console.log('⚠️ Request interceptor: No token found')
+        }
+        console.log('📤 Outgoing request headers:', config.headers)
+        return config
+      },
+      (error) => {
+        return Promise.reject(error)
+      },
+    )
+
     // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response) => response,
