@@ -114,7 +114,8 @@ export class GeminiService {
         console.log(`🔑 Using Google Account: ${account.email} (count: ${account.count})`);
 
         const browser = await getBrowser();
-        const page = await browser.newPage();
+        const context = await browser.createBrowserContext();
+        const page = await context.newPage();
         try {
             // Load cookie dari database
 

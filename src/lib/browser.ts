@@ -20,7 +20,13 @@ export async function getBrowser(userDataDir?: string): Promise<Browser> {
         const browser = await puppeteer.launch({
             executablePath,
             headless: config.puppeteer.headless,
-            args: ["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+            args: [
+                "--disable-blink-features=AutomationControlled", //
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--cookie",
+            ],
             userDataDir: finalUserDataDir,
         });
 
