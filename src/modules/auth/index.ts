@@ -1,7 +1,7 @@
 import { Elysia, t } from "elysia";
-import { AuthService, AuthContext } from "./service";
+import { AuthService } from "./service";
 import { AuthModel } from "./model";
-import { jwtPlugin, authenticate } from "./service";
+import { jwtPlugin } from "./service";
 import { AppError } from "@/middlewares/error-handler";
 
 export const auth = new Elysia({ prefix: "/api/auth" })
@@ -74,34 +74,57 @@ export const auth = new Elysia({ prefix: "/api/auth" })
             },
         },
     )
-    .group("/", (app) =>
-        app.use(authenticate).get(
-            "/profile",
-            async (context) => {
-                try {
-                    // TypeScript inference limitation: derive context from authenticate plugin
-                    // context.user is available at runtime from authenticate.derive()
-                    // @ts-expect-error - Elysia derive context type inference limitation
-                    const profile = await AuthService.getUserById(context.user.id);
+    .get(
+        "/profile",
+        async ({ jwt, headers }) => {
+            try {
+                const authHeader = headers.authorization;
 
-                    return {
-                        success: true,
-                        data: profile,
-                    };
-                } catch (error) {
-                    if (error instanceof AppError) {
-                        throw error;
-                    }
-                    throw new AppError(500, error instanceof Error ? error.message : "Failed to get profile");
+                if (!authHeader) {
+                    throw new AppError(401, "Authorization header is required");
                 }
+
+                if (!authHeader.startsWith("Bearer ")) {
+                    throw new AppError(401, "Authorization header must be in format: Bearer <token>");
+                }
+
+                const token = authHeader.replace("Bearer ", "");
+
+                if (!token) {
+                    throw new AppError(401, "Token is required in Authorization header");
+                }
+
+                const payload = await jwt.verify(token);
+
+                if (!payload) {
+                    throw new AppError(401, "Invalid or expired token");
+                }
+
+                // Validate payload structure
+                const jwtPayload = payload as { id: string; email: string };
+                if (!jwtPayload.id || !jwtPayload.email) {
+                    throw new AppError(401, "Invalid token payload");
+                }
+
+                const profile = await AuthService.getUserById(jwtPayload.id);
+
+                return {
+                    success: true,
+                    data: profile,
+                };
+            } catch (error) {
+                if (error instanceof AppError) {
+                    throw error;
+                }
+                throw new AppError(500, error instanceof Error ? error.message : "Failed to get profile");
+            }
+        },
+        {
+            response: AuthModel.profileResponse,
+            detail: {
+                summary: "Get profile",
+                description: "Get authenticated user's profile",
+                tags: ["Auth"],
             },
-            {
-                response: AuthModel.profileResponse,
-                detail: {
-                    summary: "Get profile",
-                    description: "Get authenticated user's profile",
-                    tags: ["Auth"],
-                },
-            },
-        ),
-    );
+        },
+    )

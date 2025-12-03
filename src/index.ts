@@ -20,15 +20,15 @@ const app = new Elysia()
     .use(apiKeys)
     .onError(({ code, path, set }) => {
         if (code === "NOT_FOUND") {
-            // set.status = 200;
+            set.status = 200;
             return Bun.file("./client/dist/index.html");
         }
     })
     .listen(
         config.server.port ||
-            (() => {
-                throw new Error("Server configuration is invalid: 'port' is undefined.");
-            })(),
+        (() => {
+            throw new Error("Server configuration is invalid: 'port' is undefined.");
+        })(),
     );
 
 console.log(`

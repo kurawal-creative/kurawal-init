@@ -22,69 +22,14 @@ interface UserDTO {
     avatar?: string;
 }
 
-// Auth Context interface - exported for type-safe usage
-export interface AuthContext {
-    user: {
-        id: string;
-        email: string;
-    };
-}
-
 // ============================================
 // JWT Plugin - Request Dependent Service
 // ============================================
 export const jwtPlugin = new Elysia({ name: "auth.jwt" }).use(
     jwt({
-        name: "jwt",
         secret: config.jwt.secret,
     }),
 );
-
-// ============================================
-// Authentication Plugin - Request Dependent Service
-// ============================================
-// Authenticated user type for better type safety
-export interface AuthenticatedUser {
-    id: string;
-    email: string;
-}
-
-export const authenticate = new Elysia({ name: "auth.authenticate" }).use(jwtPlugin).derive(async ({ jwt, headers }): Promise<{ user: AuthenticatedUser }> => {
-    const authHeader = headers.authorization;
-
-    if (!authHeader) {
-        throw new AppError(401, "Authorization header is required");
-    }
-
-    if (!authHeader.startsWith("Bearer ")) {
-        throw new AppError(401, "Authorization header must be in format: Bearer <token>");
-    }
-
-    const token = authHeader.substring(7).trim();
-
-    if (!token) {
-        throw new AppError(401, "Token is required in Authorization header");
-    }
-
-    const payload = await jwt.verify(token);
-
-    if (!payload) {
-        throw new AppError(401, "Invalid or expired token");
-    }
-
-    // Validate payload structure with proper type assertion
-    const jwtPayload = payload as unknown as JWTPayload;
-    if (!jwtPayload.id || !jwtPayload.email) {
-        throw new AppError(401, "Invalid token payload");
-    }
-
-    return {
-        user: {
-            id: jwtPayload.id,
-            email: jwtPayload.email,
-        },
-    };
-});
 
 // ============================================
 // Auth Service - Non-Request Dependent Service
