@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import { ApiKeysService } from "./service";
 import { ApiKeysModel } from "./model";
 import { AppError } from "@/middlewares/error-handler";
-import { authenticate } from "@/modules/auth/service";
+import { jwtPlugin, authenticateUser } from "@/modules/auth/service";
 
 /**
  * API Keys module
@@ -15,12 +15,14 @@ import { authenticate } from "@/modules/auth/service";
  */
 
 export const apiKeys = new Elysia({ prefix: "/api/api-keys" })
-    .use(authenticate)
+    .use(jwtPlugin)
     // List API keys
     .get(
         "/",
-        async ({ query }) => {
+        async ({ query, jwt, headers: { authorization } }) => {
             try {
+                await authenticateUser(jwt, authorization);
+
                 const page = parseInt(query.page || "1");
                 const pageSize = parseInt(query.pageSize || "10");
                 const apiKeys = await ApiKeysService.list(page, pageSize);
@@ -46,8 +48,10 @@ export const apiKeys = new Elysia({ prefix: "/api/api-keys" })
     // Create API key
     .post(
         "/",
-        async ({ body }) => {
+        async ({ body, jwt, headers: { authorization } }) => {
             try {
+                await authenticateUser(jwt, authorization);
+
                 const created = await ApiKeysService.create(body);
                 return {
                     success: true,
@@ -72,8 +76,10 @@ export const apiKeys = new Elysia({ prefix: "/api/api-keys" })
     // Get single API key by id
     .get(
         "/:id",
-        async ({ params }) => {
+        async ({ params, jwt, headers: { authorization } }) => {
             try {
+                await authenticateUser(jwt, authorization);
+
                 const apiKey = await ApiKeysService.findById(params.id);
                 if (!apiKey) {
                     throw new AppError(404, "API key not found");
@@ -101,8 +107,10 @@ export const apiKeys = new Elysia({ prefix: "/api/api-keys" })
     // Delete API key
     .delete(
         "/:id",
-        async ({ params }) => {
+        async ({ params, jwt, headers: { authorization } }) => {
             try {
+                await authenticateUser(jwt, authorization);
+
                 await ApiKeysService.remove(params.id);
                 return {
                     success: true,

@@ -32,25 +32,23 @@ export const jwtPlugin = new Elysia({ name: "auth.jwt" }).use(
 );
 
 // ============================================
-// Authentication Plugin - Request Dependent Service
+// Authentication Helper Function
 // ============================================
 export interface AuthenticatedUser {
     id: string;
     email: string;
 }
 
-export const authenticate = new Elysia({ name: "auth.authenticate" }).use(jwtPlugin).derive(async ({ jwt, headers }): Promise<{ user: AuthenticatedUser }> => {
-    const authHeader = headers.authorization;
-
-    if (!authHeader) {
+export async function authenticateUser(jwt: any, authorization: string | undefined): Promise<AuthenticatedUser> {
+    if (!authorization) {
         throw new AppError(401, "Authorization header is required");
     }
 
-    if (!authHeader.startsWith("Bearer ")) {
+    if (!authorization.startsWith("Bearer ")) {
         throw new AppError(401, "Authorization header must be in format: Bearer <token>");
     }
 
-    const token = authHeader.substring(7).trim();
+    const token = authorization.substring(7).trim();
 
     if (!token) {
         throw new AppError(401, "Token is required in Authorization header");
@@ -63,18 +61,16 @@ export const authenticate = new Elysia({ name: "auth.authenticate" }).use(jwtPlu
     }
 
     // Validate payload structure
-    const jwtPayload = payload as unknown as { id: string; email: string };
+    const jwtPayload = payload as { id: string; email: string };
     if (!jwtPayload.id || !jwtPayload.email) {
         throw new AppError(401, "Invalid token payload");
     }
 
     return {
-        user: {
-            id: jwtPayload.id,
-            email: jwtPayload.email,
-        },
+        id: jwtPayload.id,
+        email: jwtPayload.email,
     };
-});
+}
 
 // ============================================
 // Auth Service - Non-Request Dependent Service

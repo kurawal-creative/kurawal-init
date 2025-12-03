@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { AuthService, authenticate } from "./service";
+import { AuthService, authenticateUser } from "./service";
 import { AuthModel } from "./model";
 import { jwtPlugin } from "./service";
 import { AppError } from "@/middlewares/error-handler";
@@ -74,11 +74,12 @@ export const auth = new Elysia({ prefix: "/api/auth" })
             },
         },
     )
-    .use(authenticate)
     .get(
         "/profile",
-        async ({ user }) => {
+        async ({ jwt, headers: { authorization } }) => {
             try {
+                const user = await authenticateUser(jwt, authorization);
+
                 const profile = await AuthService.getUserById(user.id);
 
                 return {
