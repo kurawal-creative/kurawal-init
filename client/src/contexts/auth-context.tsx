@@ -64,6 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = () => {
     apiClient.clearAuth()
     setUser(null)
+    // Redirect to login page after sign out
+    window.location.href = '/login'
   }
 
   const refreshProfile = async () => {

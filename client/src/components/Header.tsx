@@ -68,7 +68,6 @@ export default function Header() {
             <button
               onClick={() => {
                 signOut()
-                setIsOpen(false)
               }}
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2 w-full text-left"
             >
