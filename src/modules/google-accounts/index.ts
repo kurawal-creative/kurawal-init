@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import { GoogleAccountsService } from "./service";
 import { GoogleAccountsModel } from "./model";
 import { AppError } from "@/middlewares/error-handler";
-import { jwtPlugin } from "@/modules/auth/service";
+import { authenticate } from "@/modules/auth/service";
 
 /**
  * Google Accounts module (scaffold)
@@ -17,23 +17,12 @@ import { jwtPlugin } from "@/modules/auth/service";
  */
 
 export const googleAccounts = new Elysia({ prefix: "/api/google-accounts" })
-    .use(jwtPlugin)
+    .use(authenticate)
     // List accounts
     .get(
         "/",
-        async ({ query, jwt, headers }) => {
+        async ({ query }) => {
             try {
-                // Verify JWT
-                const authHeader = headers.authorization;
-                if (!authHeader || !authHeader.startsWith("Bearer ")) {
-                    throw new AppError(401, "Unauthorized");
-                }
-                const token = authHeader.replace("Bearer ", "");
-                const payload = await jwt.verify(token);
-                if (!payload) {
-                    throw new AppError(401, "Invalid token");
-                }
-
                 const page = parseInt(query.page || "1");
                 const pageSize = parseInt(query.pageSize || "10");
                 const accounts = await GoogleAccountsService.list(page, pageSize);
@@ -59,19 +48,8 @@ export const googleAccounts = new Elysia({ prefix: "/api/google-accounts" })
     // Create / store account
     .post(
         "/",
-        async ({ body, jwt, headers }) => {
+        async ({ body }) => {
             try {
-                // Verify JWT
-                const authHeader = headers.authorization;
-                if (!authHeader || !authHeader.startsWith("Bearer ")) {
-                    throw new AppError(401, "Unauthorized");
-                }
-                const token = authHeader.replace("Bearer ", "");
-                const payload = await jwt.verify(token);
-                if (!payload) {
-                    throw new AppError(401, "Invalid token");
-                }
-
                 const created = await GoogleAccountsService.create(body);
                 return {
                     success: true,
@@ -96,19 +74,8 @@ export const googleAccounts = new Elysia({ prefix: "/api/google-accounts" })
     // Get single account by id
     .get(
         "/:id",
-        async ({ params, jwt, headers }) => {
+        async ({ params }) => {
             try {
-                // Verify JWT
-                const authHeader = headers.authorization;
-                if (!authHeader || !authHeader.startsWith("Bearer ")) {
-                    throw new AppError(401, "Unauthorized");
-                }
-                const token = authHeader.replace("Bearer ", "");
-                const payload = await jwt.verify(token);
-                if (!payload) {
-                    throw new AppError(401, "Invalid token");
-                }
-
                 const account = await GoogleAccountsService.findById(params.id);
                 if (!account) {
                     throw new AppError(404, "Google account not found");
@@ -136,19 +103,8 @@ export const googleAccounts = new Elysia({ prefix: "/api/google-accounts" })
     // Delete account
     .delete(
         "/:id",
-        async ({ params, jwt, headers }) => {
+        async ({ params }) => {
             try {
-                // Verify JWT
-                const authHeader = headers.authorization;
-                if (!authHeader || !authHeader.startsWith("Bearer ")) {
-                    throw new AppError(401, "Unauthorized");
-                }
-                const token = authHeader.replace("Bearer ", "");
-                const payload = await jwt.verify(token);
-                if (!payload) {
-                    throw new AppError(401, "Invalid token");
-                }
-
                 await GoogleAccountsService.remove(params.id);
                 return {
                     success: true,
@@ -173,19 +129,8 @@ export const googleAccounts = new Elysia({ prefix: "/api/google-accounts" })
     // Relogin account
     .post(
         "/:id/relogin",
-        async ({ params, jwt, headers }) => {
+        async ({ params }) => {
             try {
-                // Verify JWT
-                const authHeader = headers.authorization;
-                if (!authHeader || !authHeader.startsWith("Bearer ")) {
-                    throw new AppError(401, "Unauthorized");
-                }
-                const token = authHeader.replace("Bearer ", "");
-                const payload = await jwt.verify(token);
-                if (!payload) {
-                    throw new AppError(401, "Invalid token");
-                }
-
                 const updated = await GoogleAccountsService.relogin(params.id);
                 return {
                     success: true,

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Loader2, LogIn } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { AuthLayout } from '@/components/layouts/auth-layout'

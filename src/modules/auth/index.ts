@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { AuthService } from "./service";
+import { AuthService, authenticate } from "./service";
 import { AuthModel } from "./model";
 import { jwtPlugin } from "./service";
 import { AppError } from "@/middlewares/error-handler";
@@ -74,39 +74,12 @@ export const auth = new Elysia({ prefix: "/api/auth" })
             },
         },
     )
+    .use(authenticate)
     .get(
         "/profile",
-        async ({ jwt, headers }) => {
+        async ({ user }) => {
             try {
-                const authHeader = headers.authorization;
-
-                if (!authHeader) {
-                    throw new AppError(401, "Authorization header is required");
-                }
-
-                if (!authHeader.startsWith("Bearer ")) {
-                    throw new AppError(401, "Authorization header must be in format: Bearer <token>");
-                }
-
-                const token = authHeader.replace("Bearer ", "");
-
-                if (!token) {
-                    throw new AppError(401, "Token is required in Authorization header");
-                }
-
-                const payload = await jwt.verify(token);
-
-                if (!payload) {
-                    throw new AppError(401, "Invalid or expired token");
-                }
-
-                // Validate payload structure
-                const jwtPayload = payload as { id: string; email: string };
-                if (!jwtPayload.id || !jwtPayload.email) {
-                    throw new AppError(401, "Invalid token payload");
-                }
-
-                const profile = await AuthService.getUserById(jwtPayload.id);
+                const profile = await AuthService.getUserById(user.id);
 
                 return {
                     success: true,
@@ -127,4 +100,4 @@ export const auth = new Elysia({ prefix: "/api/auth" })
                 tags: ["Auth"],
             },
         },
-    )
+    );
