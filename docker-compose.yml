@@ -4,7 +4,7 @@ services:
         ports:
             - "4000:3000"
         volumes:
-            - ./user-data1:/app/user-data1
-            - ./user_data2:/app/user_data2
+            - ./user-data1:/app/user-data1:rw
+            - ./user_data2:/app/user_data2:rw
         env_file:
             - .env
