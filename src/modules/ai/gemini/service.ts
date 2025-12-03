@@ -217,7 +217,7 @@ export class GeminiService {
     }
 
     private static async submitPrompt(page: Page, prompt: string): Promise<void> {
-        const textareaSelector = 'textarea[aria-label="Type something or tab to choose an example prompt"]';
+        const textareaSelector = ".textarea";
         await page.waitForSelector(textareaSelector);
         await page.type(textareaSelector, prompt);
 
