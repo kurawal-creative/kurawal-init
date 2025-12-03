@@ -2,20 +2,17 @@ FROM timbru31/node-chrome:jod AS builder
 
 WORKDIR /client
 
-COPY client/package.json ./package.json
+COPY client/package.json package.json
 
 RUN yarn install
 
-COPY client/ ./
+COPY client .
 
-RUN bun run build
+RUN yarn run build
 
 FROM timbru31/node-chrome:jod
 
 WORKDIR /app
-
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
 
 COPY . .
 
