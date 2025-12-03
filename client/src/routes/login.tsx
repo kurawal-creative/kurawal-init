@@ -1,15 +1,18 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { Loader2, LogIn } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { AuthLayout } from '@/components/layouts/auth-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-
-export const Route = createFileRoute('/login')({
-  component: LoginPage,
-})
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 function LoginPage() {
   const navigate = useNavigate()
@@ -20,9 +23,11 @@ function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate({ to: '/admin' })
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +36,7 @@ function LoginPage() {
 
     try {
       await signIn(email, password)
-      navigate({ to: '/admin' })
+      navigate('/admin', { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign in')
     } finally {
@@ -55,7 +60,7 @@ function LoginPage() {
                 {error}
               </div>
             )}
-            
+
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
                 Email
@@ -87,11 +92,7 @@ function LoginPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -104,7 +105,7 @@ function LoginPage() {
                 </>
               )}
             </Button>
-            
+
             <p className="text-sm text-center text-slate-600 dark:text-slate-400">
               Don't have an account?{' '}
               <Link
@@ -120,3 +121,5 @@ function LoginPage() {
     </AuthLayout>
   )
 }
+
+export default LoginPage

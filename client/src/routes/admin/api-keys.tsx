@@ -1,13 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Key, Plus, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-export const Route = createFileRoute('/admin/api-keys')({
-  component: ApiKeysPage,
-})
 
 interface ApiKey {
   id: string
@@ -207,3 +202,5 @@ function ApiKeysPage() {
     </div>
   )
 }
+
+export default ApiKeysPage

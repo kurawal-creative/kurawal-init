@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-export const Route = createFileRoute('/admin/google-accounts')({
-  component: GoogleAccountsPage,
-})
 
 interface GoogleAccount {
   id: string
@@ -185,3 +180,5 @@ function GoogleAccountsPage() {
     </div>
   )
 }
+
+export default GoogleAccountsPage

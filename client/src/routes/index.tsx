@@ -1,10 +1,6 @@
-import { Navigate, createFileRoute } from '@tanstack/react-router'
+import { Navigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
-
-export const Route = createFileRoute('/')({
-  component: IndexPage,
-})
 
 function IndexPage() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -19,8 +15,10 @@ function IndexPage() {
 
   // Redirect based on auth status
   if (isAuthenticated) {
-    return <Navigate to="/admin" />
+    return <Navigate to="/admin" replace />
   }
 
-  return <Navigate to="/login" />
+  return <Navigate to="/login" replace />
 }
+
+export default IndexPage

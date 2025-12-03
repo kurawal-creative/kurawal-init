@@ -1,4 +1,4 @@
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { useState } from 'react'
 import { Home, Menu, X } from 'lucide-react'
@@ -51,10 +51,6 @@ export default function Header() {
             to="/"
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
           >
             <Home size={20} />
             <span className="font-medium">Home</span>
@@ -76,7 +72,7 @@ export default function Header() {
           ) : (
             <button
               onClick={() => {
-                navigate({ to: '/login' })
+                navigate('/login')
                 setIsOpen(false)
               }}
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2 w-full text-left"

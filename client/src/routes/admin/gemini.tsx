@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 import {
   AlertCircle,
@@ -12,10 +11,6 @@ import { apiClient } from '@/lib/api-client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-export const Route = createFileRoute('/admin/gemini')({
-  component: GeminiPage,
-})
 
 function GeminiPage() {
   const [prompt, setPrompt] = useState('')
@@ -281,3 +276,5 @@ function GeminiPage() {
     </div>
   )
 }
+
+export default GeminiPage

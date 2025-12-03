@@ -1,15 +1,18 @@
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { Loader2, UserPlus } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
 import { AuthLayout } from '@/components/layouts/auth-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-
-export const Route = createFileRoute('/register')({
-  component: RegisterPage,
-})
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 function RegisterPage() {
   const navigate = useNavigate()
@@ -24,14 +27,16 @@ function RegisterPage() {
   const [loading, setLoading] = useState(false)
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate({ to: '/admin' })
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }))
   }
 
@@ -51,9 +56,9 @@ function RegisterPage() {
         formData.username,
         formData.email,
         formData.password,
-        formData.name || undefined
+        formData.name || undefined,
       )
-      navigate({ to: '/admin' })
+      navigate('/admin', { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign up')
     } finally {
@@ -77,7 +82,7 @@ function RegisterPage() {
                 {error}
               </div>
             )}
-            
+
             <div className="space-y-2">
               <label htmlFor="username" className="text-sm font-medium">
                 Username *
@@ -143,11 +148,7 @@ function RegisterPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -160,7 +161,7 @@ function RegisterPage() {
                 </>
               )}
             </Button>
-            
+
             <p className="text-sm text-center text-slate-600 dark:text-slate-400">
               Already have an account?{' '}
               <Link
@@ -176,3 +177,5 @@ function RegisterPage() {
     </AuthLayout>
   )
 }
+
+export default RegisterPage

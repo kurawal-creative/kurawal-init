@@ -1,14 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { AlertCircle, Brain, Heart, Loader2, Send } from 'lucide-react'
-import { apiClient } from '@/lib/api-client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-export const Route = createFileRoute('/admin/kimi')({
-  component: KimiPage,
-})
+import { apiClient } from '@/lib/api-client'
 
 function KimiPage() {
   const [query, setQuery] = useState('')
@@ -256,3 +251,5 @@ function KimiPage() {
     </div>
   )
 }
+
+export default KimiPage

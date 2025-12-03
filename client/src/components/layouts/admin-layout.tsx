@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from '@tanstack/react-router'
+import { NavLink } from 'react-router-dom'
 import {
   Brain,
   ImageIcon,
@@ -63,15 +63,20 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           {/* Navigation */}
           <nav className="flex-1 space-y-1 px-3 py-4">
             {navigation.map((item) => (
-              <Link
+              <NavLink
                 key={item.name}
                 to={item.href}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white [&.active]:bg-blue-50 [&.active]:text-blue-600 dark:[&.active]:bg-blue-900/20 dark:[&.active]:text-blue-400"
-                activeOptions={{ exact: item.href === '/admin' }}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white',
+                    isActive &&
+                      'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
+                  )
+                }
               >
                 <item.icon className="h-5 w-5" />
                 {item.name}
-              </Link>
+              </NavLink>
             ))}
           </nav>
 

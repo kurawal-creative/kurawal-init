@@ -1,10 +1,12 @@
-import { Link, createFileRoute  } from '@tanstack/react-router'
+import { Link } from 'react-router-dom'
 import { Activity, Brain, ImageIcon, Users } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-
-export const Route = createFileRoute('/admin/')({
-  component: AdminDashboard,
-})
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 function AdminDashboard() {
   const stats = [
@@ -75,9 +77,7 @@ function AdminDashboard() {
               <CardTitle className="text-sm font-medium">
                 {stat.title}
               </CardTitle>
-              <div
-                className={`p-2 rounded-lg bg-gradient-to-br ${stat.color}`}
-              >
+              <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color}`}>
                 <stat.icon className="h-4 w-4 text-white" />
               </div>
             </CardHeader>
@@ -133,10 +133,14 @@ function AdminDashboard() {
           <div className="text-center py-8 text-slate-500 dark:text-slate-400">
             <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
             <p>No recent activity</p>
-            <p className="text-sm">Start using AI features to see activity here</p>
+            <p className="text-sm">
+              Start using AI features to see activity here
+            </p>
           </div>
         </CardContent>
       </Card>
     </div>
   )
 }
+
+export default AdminDashboard
