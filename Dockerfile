@@ -4,8 +4,7 @@ WORKDIR /client
 
 COPY client/package.json ./package.json
 
-RUN npm i bun -g
-RUN bun install
+RUN yarn install
 
 COPY client/ ./
 

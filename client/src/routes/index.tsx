@@ -1,60 +1,26 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
-
-import logo from '../logo.svg'
-import { useAuth } from '../lib/auth'
+import { Navigate, createFileRoute } from '@tanstack/react-router'
+import { Loader2 } from 'lucide-react'
+import { useAuth } from '@/contexts/auth-context'
 
 export const Route = createFileRoute('/')({
-  component: App,
+  component: IndexPage,
 })
 
-function App() {
-  const { user, isLoading } = useAuth()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      navigate({ to: '/login' })
-    }
-  }, [user, isLoading, navigate])
+function IndexPage() {
+  const { isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) {
-    return <div className="text-center mt-10">Loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    )
   }
 
-  if (!user) {
-    return null // Will redirect
+  // Redirect based on auth status
+  if (isAuthenticated) {
+    return <Navigate to="/admin" />
   }
 
-  return (
-    <div className="text-center">
-      <header className="min-h-screen flex flex-col items-center justify-center bg-[#282c34] text-white text-[calc(10px+2vmin)]">
-        <img
-          src={logo}
-          className="h-[40vmin] pointer-events-none animate-[spin_20s_linear_infinite]"
-          alt="logo"
-        />
-        <p>Welcome, {user.name || user.username}!</p>
-        <p>
-          Edit <code>src/routes/index.tsx</code> and save to reload.
-        </p>
-        <a
-          className="text-[#61dafb] hover:underline"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <a
-          className="text-[#61dafb] hover:underline"
-          href="https://tanstack.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn TanStack
-        </a>
-      </header>
-    </div>
-  )
+  return <Navigate to="/login" />
 }

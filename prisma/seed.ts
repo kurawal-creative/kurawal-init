@@ -11,6 +11,7 @@ async function main() {
             email: "admin@example.com",
             name: "Administrator",
             password: hashedPassword1,
+            avatar: "https://i.ibb.co.com/20GWtzm0/028c7f187f32db8a7007b08adf304cf0-1.jpg",
         },
     });
 

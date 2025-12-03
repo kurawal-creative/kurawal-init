@@ -1,11 +1,20 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
+import { config } from "@/config";
 
 const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined;
 };
 
-const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
+const adapter = new PrismaNeon({ connectionString: config.database.url });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export const prisma = globalForPrisma.prisma ?? new PrismaClient({ 
+    adapter,
+    log: config.server.env === "development" 
+        ? ["query", "error", "warn"] 
+        : ["error"],
+});
+
+if (config.server.env !== "production") {
+    globalForPrisma.prisma = prisma;
+}

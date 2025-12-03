@@ -9,12 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminKimiRouteImport } from './routes/admin/kimi'
+import { Route as AdminGoogleAccountsRouteImport } from './routes/admin/google-accounts'
+import { Route as AdminGeminiRouteImport } from './routes/admin/gemini'
+import { Route as AdminApiKeysRouteImport } from './routes/admin/api-keys'
 
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,40 +39,128 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminKimiRoute = AdminKimiRouteImport.update({
+  id: '/kimi',
+  path: '/kimi',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGoogleAccountsRoute = AdminGoogleAccountsRouteImport.update({
+  id: '/google-accounts',
+  path: '/google-accounts',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGeminiRoute = AdminGeminiRouteImport.update({
+  id: '/gemini',
+  path: '/gemini',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApiKeysRoute = AdminApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/admin/api-keys': typeof AdminApiKeysRoute
+  '/admin/gemini': typeof AdminGeminiRoute
+  '/admin/google-accounts': typeof AdminGoogleAccountsRoute
+  '/admin/kimi': typeof AdminKimiRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/admin/api-keys': typeof AdminApiKeysRoute
+  '/admin/gemini': typeof AdminGeminiRoute
+  '/admin/google-accounts': typeof AdminGoogleAccountsRoute
+  '/admin/kimi': typeof AdminKimiRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/admin/api-keys': typeof AdminApiKeysRoute
+  '/admin/gemini': typeof AdminGeminiRoute
+  '/admin/google-accounts': typeof AdminGoogleAccountsRoute
+  '/admin/kimi': typeof AdminKimiRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/register'
+    | '/admin/api-keys'
+    | '/admin/gemini'
+    | '/admin/google-accounts'
+    | '/admin/kimi'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login'
-  id: '__root__' | '/' | '/login'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/admin/api-keys'
+    | '/admin/gemini'
+    | '/admin/google-accounts'
+    | '/admin/kimi'
+    | '/admin'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/register'
+    | '/admin/api-keys'
+    | '/admin/gemini'
+    | '/admin/google-accounts'
+    | '/admin/kimi'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -65,12 +170,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/kimi': {
+      id: '/admin/kimi'
+      path: '/kimi'
+      fullPath: '/admin/kimi'
+      preLoaderRoute: typeof AdminKimiRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/google-accounts': {
+      id: '/admin/google-accounts'
+      path: '/google-accounts'
+      fullPath: '/admin/google-accounts'
+      preLoaderRoute: typeof AdminGoogleAccountsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/gemini': {
+      id: '/admin/gemini'
+      path: '/gemini'
+      fullPath: '/admin/gemini'
+      preLoaderRoute: typeof AdminGeminiRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/api-keys': {
+      id: '/admin/api-keys'
+      path: '/api-keys'
+      fullPath: '/admin/api-keys'
+      preLoaderRoute: typeof AdminApiKeysRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminApiKeysRoute: typeof AdminApiKeysRoute
+  AdminGeminiRoute: typeof AdminGeminiRoute
+  AdminGoogleAccountsRoute: typeof AdminGoogleAccountsRoute
+  AdminKimiRoute: typeof AdminKimiRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminApiKeysRoute: AdminApiKeysRoute,
+  AdminGeminiRoute: AdminGeminiRoute,
+  AdminGoogleAccountsRoute: AdminGoogleAccountsRoute,
+  AdminKimiRoute: AdminKimiRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

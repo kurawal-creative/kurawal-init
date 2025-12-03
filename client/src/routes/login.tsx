@@ -1,92 +1,122 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useAuth } from '../lib/auth'
+import { Loader2, LogIn } from 'lucide-react'
+import { useAuth } from '@/contexts/auth-context'
+import { AuthLayout } from '@/components/layouts/auth-layout'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const Route = createFileRoute('/login')({
-  component: Login,
+  component: LoginPage,
 })
 
-function Login() {
+function LoginPage() {
+  const navigate = useNavigate()
+  const { signIn, isAuthenticated } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
-  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    navigate({ to: '/admin' })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setIsLoading(true)
+    setLoading(true)
+
     try {
-      await login(email, password)
-      navigate({ to: '/' })
+      await signIn(email, password)
+      navigate({ to: '/admin' })
     } catch (err) {
-      setError('Login failed. Please check your credentials.')
+      setError(err instanceof Error ? err.message : 'Failed to sign in')
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
+    <AuthLayout>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Sign In</CardTitle>
+          <CardDescription>
+            Enter your credentials to access your account
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            {error && (
+              <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-400">
+                {error}
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium">
+                Email
               </label>
-              <input
+              <Input
                 id="email"
-                name="email"
                 type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
               />
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
+
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium">
                 Password
               </label>
-              <input
+              <Input
                 id="password"
-                name="password"
                 type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
               />
             </div>
-          </div>
-
-          {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
-          )}
-
-          <div>
-            <button
+          </CardContent>
+          <CardFooter className="flex flex-col gap-4">
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="w-full"
+              disabled={loading}
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign In
+                </>
+              )}
+            </Button>
+            
+            <p className="text-sm text-center text-slate-600 dark:text-slate-400">
+              Don't have an account?{' '}
+              <Link
+                to="/register"
+                className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+              >
+                Sign up
+              </Link>
+            </p>
+          </CardFooter>
         </form>
-      </div>
-    </div>
+      </Card>
+    </AuthLayout>
   )
 }

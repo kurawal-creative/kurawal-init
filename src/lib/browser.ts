@@ -1,36 +1,51 @@
-import puppeteer, { Browser } from "puppeteer-core";
+import puppeteer, { Browser, Page } from "puppeteer-core";
 import path from "path";
 import os from "os";
+import { config } from "@/config";
 
-export let browserInstance: Browser | null = null;
+const browsers = new Map<string, Browser>();
 
-export async function getBrowser(): Promise<Browser> {
-    if (!browserInstance) {
+export async function getBrowser(userDataDir?: string): Promise<Browser> {
+    const finalUserDataDir = userDataDir || path.join(process.cwd(), "user_data2");
+
+    if (!browsers.has(finalUserDataDir)) {
+        console.log(`🚀 Launching browser for ${finalUserDataDir}...`);
+
         const executablePath =
-            process.env.PUPPETEER_EXECUTABLE_PATH ||
-            (os.platform() === //
-            "win32"
+            config.puppeteer.executablePath || //
+            (os.platform() === "win32" //
                 ? "C:/Program Files/Google/Chrome/Application/chrome.exe"
                 : "/usr/bin/chromium");
-        browserInstance = await puppeteer.launch({
+
+        const browser = await puppeteer.launch({
             executablePath,
-            headless: process.env.HEADLESS === "true",
-            args: [
-                "--disable-blink-features=AutomationControlled", //
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-            ],
-            userDataDir: path.join(process.cwd(), "tmp"),
+            headless: config.puppeteer.headless,
+            args: ["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+            userDataDir: finalUserDataDir,
         });
+
+        browsers.set(finalUserDataDir, browser);
+        console.log(`✅ Browser launched for ${finalUserDataDir}`);
     }
-    return browserInstance;
+
+    return browsers.get(finalUserDataDir)!;
 }
 
-// Optional: Function to close the browser
-export async function closeBrowser(): Promise<void> {
-    if (browserInstance) {
-        await browserInstance.close();
-        browserInstance = null;
+export async function closeAllBrowser(): Promise<void> {
+    for (const [userDataDir, browser] of browsers) {
+        await browser.close();
+        console.log(`✅ Browser closed for ${userDataDir}`);
     }
+    browsers.clear();
 }
+
+// Graceful shutdown
+process.on("SIGINT", async () => {
+    await closeAllBrowser();
+    process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+    await closeAllBrowser();
+    process.exit(0);
+});

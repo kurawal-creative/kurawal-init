@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import axios from 'axios'
+import type {AxiosInstance} from 'axios';
 import type { ReactNode } from 'react'
-import axios, { type AxiosInstance } from 'axios'
 
 interface User {
   id: number
