@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { apiClient } from '@/lib/api-client'
 
 interface GoogleAccount {
   id: string
@@ -24,8 +25,10 @@ function GoogleAccountsPage() {
 
   const fetchAccounts = async () => {
     try {
-      const response = await fetch(`/api/google-accounts?page=1&pageSize=100`)
-      const result = await response.json()
+      const response = await apiClient['client'].get(
+        `/google-accounts?page=1&pageSize=100`,
+      )
+      const result = response.data
       console.log('Fetch accounts result:', result)
       if (result.success && result.data) {
         setAccounts(result.data.data || [])
@@ -41,15 +44,11 @@ function GoogleAccountsPage() {
 
     setLoading(true)
     try {
-      const response = await fetch(`/api/google-accounts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
+      const response = await apiClient['client'].post(`/google-accounts`, {
+        email,
       })
 
-      const result = await response.json()
+      const result = response.data
       if (result.success) {
         alert('Akun Google berhasil ditambahkan!')
         setEmail('')
@@ -74,11 +73,11 @@ function GoogleAccountsPage() {
       return
 
     try {
-      const response = await fetch(`/api/google-accounts/${accountId}`, {
-        method: 'DELETE',
-      })
+      const response = await apiClient['client'].delete(
+        `/google-accounts/${accountId}`,
+      )
 
-      const result = await response.json()
+      const result = response.data
       if (result.success) {
         alert('Akun berhasil dihapus!')
         fetchAccounts()

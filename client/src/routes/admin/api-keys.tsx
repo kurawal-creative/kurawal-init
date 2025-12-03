@@ -3,6 +3,7 @@ import { Key, Plus, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { apiClient } from '@/lib/api-client'
 
 interface ApiKey {
   id: string
@@ -24,8 +25,10 @@ function ApiKeysPage() {
 
   const fetchApiKeys = async () => {
     try {
-      const response = await fetch(`/api/api-keys?page=1&pageSize=100`)
-      const result = await response.json()
+      const response = await apiClient['client'].get(
+        `/api-keys?page=1&pageSize=100`,
+      )
+      const result = response.data
       if (result.success && result.data) {
         setApiKeys(result.data.data || [])
       }
@@ -40,15 +43,12 @@ function ApiKeysPage() {
 
     setLoading(true)
     try {
-      const response = await fetch(`/api/api-keys`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, key }),
+      const response = await apiClient['client'].post(`/api-keys`, {
+        name,
+        key,
       })
 
-      const result = await response.json()
+      const result = response.data
       if (result.success) {
         alert('API Key berhasil ditambahkan!')
         setName('')
@@ -74,11 +74,9 @@ function ApiKeysPage() {
       return
 
     try {
-      const response = await fetch(`/api/api-keys/${apiKeyId}`, {
-        method: 'DELETE',
-      })
+      const response = await apiClient['client'].delete(`/api-keys/${apiKeyId}`)
 
-      const result = await response.json()
+      const result = response.data
       if (result.success) {
         alert('API Key berhasil dihapus!')
         fetchApiKeys()
