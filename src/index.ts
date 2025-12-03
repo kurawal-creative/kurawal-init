@@ -8,7 +8,6 @@ import { apiKeys } from "@/modules/api-keys";
 import { logger } from "@grotto/logysia";
 import { cors } from "@elysiajs/cors";
 import { config } from "@/config";
-import { file } from "bun";
 
 const app = new Elysia()
     .use(cors())
@@ -20,10 +19,9 @@ const app = new Elysia()
     .use(googleAccounts)
     .use(apiKeys)
     .onError(({ code, path, set }) => {
-        // Serve SPA for 404s that aren't API or asset requests
-        if (code === "NOT_FOUND" && !path.startsWith("/api/") && !path.startsWith("/assets")) {
-            set.status = 200;
-            return file("./client/dist/index.html");
+        if (code === "NOT_FOUND") {
+            // set.status = 200;
+            return Bun.file("./client/dist/index.html");
         }
     })
     .listen(
