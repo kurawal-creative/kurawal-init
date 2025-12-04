@@ -184,6 +184,14 @@ export class GeminiService {
     }
 
     private static async uploadImage(page: Page, imagePath: string): Promise<void> {
+        try {
+            await (
+                await page.waitForSelector('button[aria-label*="Agree "]', {
+                    timeout: 2000,
+                })
+            )?.click();
+        } catch (e) {}
+
         do {
             const button = await page.waitForSelector('button[aria-label*="Insert "]');
             if (button) {
