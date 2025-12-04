@@ -146,20 +146,20 @@ export class GeminiService {
             }
 
             // Ambil cookie terbaru setelah generate
-            // const newCookies = await page.cookies();
-            // const cookieJson = serializeCookies(newCookies);
+            const newCookies = await page.cookies();
+            const cookieJson = JSON.stringify(newCookies);
 
             // Increment count dan update cookie setelah berhasil generate
             await prisma.googleAccount.update({
                 where: { id: account.id },
                 data: {
                     count: { increment: 1 },
-                    // cookie: cookieJson,
+                    cookie: cookieJson,
                     updatedAt: new Date(),
                 },
             });
             console.log(`📊 Updated count for ${account.email}: ${account.count} → ${account.count + 1}`);
-            // console.log(`🍪 Cookie updated for ${account.email}`);
+            console.log(`🍪 Cookie updated for ${account.email}`);
 
             return imageBuffer;
         } finally {
@@ -184,37 +184,24 @@ export class GeminiService {
     }
 
     private static async uploadImage(page: Page, imagePath: string): Promise<void> {
-        let uploadVisible = false;
-        let attempts = 0;
-        const maxAttempts = 10;
-
-        while (!uploadVisible && attempts < maxAttempts) {
-            try {
-                await page.waitForSelector('button[aria-label="Upload File"]', {
-                    visible: true,
-                    timeout: 1000,
-                });
-                uploadVisible = true;
-            } catch {
-                try {
-                    await page.waitForSelector('button[iconname="add_circle"]');
-                    await page.click('button[iconname="add_circle"]');
-                    await new Promise((resolve) => setTimeout(resolve, 500));
-                } catch (error) {
-                    console.error("Error clicking add button:", error);
-                }
-                attempts++;
+        do {
+            const button = await page.waitForSelector('button[aria-label*="Insert "]');
+            if (button) {
+                await button.click({ delay: 100 });
             }
+        } while (
+            await page.evaluate(() => {
+                const btn = document.querySelector('button[aria-label*="Insert "]');
+                return btn && btn.getAttribute("aria-expanded") === "false";
+            })
+        );
+
+        const fileElement = await page.waitForSelector('input[type="file"]');
+        if (fileElement) {
+            await fileElement.uploadFile(imagePath);
+        } else {
+            throw new Error("File input element not found");
         }
-
-        if (!uploadVisible) {
-            throw new Error("Upload button not found after multiple attempts");
-        }
-
-        const [fileChooser] = await Promise.all([page.waitForFileChooser(), page.click('button[aria-label="Upload File"]')]);
-
-        await fileChooser.accept([imagePath]);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     private static async submitPrompt(page: Page, prompt: string): Promise<void> {
