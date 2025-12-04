@@ -223,7 +223,14 @@ export class GeminiService {
         await page.type(textareaSelector, prompt);
 
         await page.waitForSelector(".mat-icon");
-        await page.click(".mat-icon");
+
+        do {
+            await page.click(".mat-icon", { delay: 700 }).catch(() => {});
+        } while (
+            await page
+                .evaluate(() => document.querySelector(".mat-icon")) //
+                .then((el) => !!el)
+        );
     }
 
     private static async waitForGeneration(page: Page): Promise<void> {

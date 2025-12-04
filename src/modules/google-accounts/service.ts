@@ -148,7 +148,7 @@ export abstract class GoogleAccountsService {
                 updatedAt: created.updatedAt.toISOString(),
             };
         } finally {
-            await browser.close();
+            await page.close();
         }
     }
 
