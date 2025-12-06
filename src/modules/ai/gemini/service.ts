@@ -77,18 +77,18 @@ export class GeminiService {
         }
     }
 
-    static async generateImage(image: File | undefined, prompt: string): Promise<Buffer> {
+    static async generateImage(image: File | undefined, prompt: string): Promise<Buffer | string> {
         let tempPath: string | null = null;
 
         try {
             if (image) {
                 tempPath = await this.saveTempFile(image);
             }
-            const imageBuffer = await this.generateImageFromPath({
+            const response = await this.generateImageFromPath({
                 imagePath: tempPath || undefined,
                 prompt,
             });
-            return imageBuffer;
+            return response;
         } finally {
             if (tempPath) {
                 this.cleanupTempFile(tempPath);
@@ -96,7 +96,7 @@ export class GeminiService {
         }
     }
 
-    private static async generateImageFromPath(options: ImageGenerationOptions): Promise<Buffer> {
+    private static async generateImageFromPath(options: ImageGenerationOptions): Promise<Buffer | string> {
         // Get Google Account dengan count terendah dan updatedAt terlama
         const account = await prisma.googleAccount.findFirst({
             where: {
@@ -139,10 +139,10 @@ export class GeminiService {
             await GeminiService.submitPrompt(page, options.prompt);
             await GeminiService.waitForGeneration(page);
 
-            const imageBuffer = await GeminiService.extractImage(page);
+            const response = await GeminiService.extractImage(page);
 
-            if (!imageBuffer) {
-                throw new Error("Failed to generate image - no result found");
+            if (!response) {
+                throw new Error("Failed to generate response - no result found");
             }
 
             // Ambil cookie terbaru setelah generate
@@ -161,7 +161,7 @@ export class GeminiService {
             console.log(`📊 Updated count for ${account.email}: ${account.count} → ${account.count + 1}`);
             console.log(`🍪 Cookie updated for ${account.email}`);
 
-            return imageBuffer;
+            return response;
         } finally {
             await page.close();
         }
@@ -184,19 +184,19 @@ export class GeminiService {
     }
 
     private static async uploadImage(page: Page, imagePath: string): Promise<void> {
-        try {
-            await (
-                await page.waitForSelector('button[aria-label*="Agree "]', {
-                    timeout: 2000,
-                })
-            )?.click();
-        } catch (e) {}
-
         do {
             const button = await page.waitForSelector('button[aria-label*="Insert "]');
             if (button) {
                 await button.click({ delay: 100 });
             }
+
+            try {
+                await (
+                    await page.waitForSelector('button[aria-label*="Agree "]', {
+                        timeout: 2000,
+                    })
+                )?.click();
+            } catch (e) {}
         } while (
             await page.evaluate(() => {
                 const btn = document.querySelector('button[aria-label*="Insert "]');
@@ -244,28 +244,43 @@ export class GeminiService {
         }
     }
 
-    private static async extractImage(page: Page): Promise<Buffer | null> {
+    private static async extractImage(page: Page): Promise<Buffer | string | null> {
         const startTime = Date.now();
 
-        while (Date.now() - startTime < GeminiService.TIMEOUT) {
-            const imgSrc = await page.evaluate(() => {
-                const div = document.querySelector("div.chat-session-content");
-                if (div && div.children.length > 1) {
-                    const secondLast = div.children[div.children.length - 2] as HTMLElement;
-                    const img = secondLast.querySelector("img");
-                    return img ? img.src : null;
-                }
-                return null;
-            });
-
-            if (imgSrc && typeof imgSrc === "string" && imgSrc.startsWith("data:image/")) {
-                const parts = imgSrc.split(",");
-                if (parts.length > 1) {
-                    return Buffer.from(parts[1], "base64");
-                }
+        // while (Date.now() - startTime < GeminiService.TIMEOUT) {
+        const imgSrc = await page.evaluate(() => {
+            const div = document.querySelector("div.chat-session-content");
+            if (div && div.children.length > 1) {
+                const secondLast = div.children[div.children.length - 2] as HTMLElement;
+                const img = secondLast.querySelector("img");
+                return img ? img.src : null;
             }
+            return null;
+        });
 
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (imgSrc && typeof imgSrc === "string" && imgSrc.startsWith("data:image/")) {
+            const parts = imgSrc.split(",");
+            if (parts.length > 1) {
+                return Buffer.from(parts[1], "base64");
+            }
+        }
+
+        //     await new Promise((resolve) => setTimeout(resolve, 1000));
+        // }
+
+        // If no image found, try to extract text from the response element
+        const text = await page.evaluate(() => {
+            const div = document.querySelector("div.chat-session-content");
+            if (div && div.children.length > 1) {
+                const secondLast = div.children[div.children.length - 2] as HTMLElement;
+                const span = secondLast.querySelector(".model-prompt-container span");
+                return span ? span.textContent?.trim() : secondLast.textContent?.trim();
+            }
+            return null;
+        });
+
+        if (text) {
+            return text;
         }
 
         return null;

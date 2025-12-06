@@ -8,15 +8,26 @@ export const gemini = new Elysia({ prefix: "/gemini" }).use(validateApiKey).post
     "/",
     async ({ body }) => {
         try {
-            const imageBuffer = await GeminiService.generateImage(body.image, body.prompt);
+            const response = await GeminiService.generateImage(body.image, body.prompt);
 
-            return new Response(new Uint8Array(imageBuffer), {
-                headers: {
-                    "Content-Type": "image/png",
-                    "Content-Disposition": "inline; filename=generated.png",
-                    "Cache-Control": "no-cache",
-                },
-            });
+            if (Buffer.isBuffer(response)) {
+                return new Response(new Uint8Array(response), {
+                    headers: {
+                        "Content-Type": "image/png",
+                        "Content-Disposition": "inline; filename=generated.png",
+                        "Cache-Control": "no-cache",
+                    },
+                });
+            } else if (typeof response === "string") {
+                return new Response(response, {
+                    headers: {
+                        "Content-Type": "text/plain",
+                        "Cache-Control": "no-cache",
+                    },
+                });
+            } else {
+                throw new Error("Invalid response type");
+            }
         } catch (error) {
             throw new AppError(500, error instanceof Error ? error.message : "Failed to generate image");
         }
