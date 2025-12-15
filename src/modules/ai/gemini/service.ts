@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 import { decrypt } from "@/lib/encryption";
-import { getRandomProxy } from "@/lib/proxy";
 
 /**
  * Helper functions for cookie serialization
@@ -114,9 +113,19 @@ export class GeminiService {
 
         console.log(`🔑 Using Google Account: ${account.email} (count: ${account.count})`);
 
-        // Ambil proxy random dari Webshare
-        const proxy = await getRandomProxy();
-        console.log(`[PROXY] Menggunakan proxy: ${proxy.proxy_address}:${proxy.port} (user: ${proxy.username})`);
+        // Ambil proxy dari ENV, format: host:port:user:pass
+        const proxyEnv = process.env.PROXY;
+        if (!proxyEnv) {
+            throw new Error("PROXY env variable is not set");
+        }
+        const [proxy_host, proxy_port, proxy_username, proxy_password] = proxyEnv.split(":");
+        const proxy = {
+            proxy_address: proxy_host,
+            port: Number(proxy_port),
+            username: proxy_username,
+            password: proxy_password,
+        };
+        console.log(`[PROXY] Menggunakan proxy dari ENV: ${proxy.proxy_address}:${proxy.port} (user: ${proxy.username})`);
 
         const browser = await getBrowser(undefined, proxy);
 
