@@ -20,7 +20,6 @@ COPY --from=builder /client/dist ./client/dist
 
 RUN npm i bun -g
 RUN bun install
-RUN bun prisma generate
 
 EXPOSE 3000
 
