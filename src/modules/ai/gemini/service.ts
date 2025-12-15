@@ -261,42 +261,49 @@ export class GeminiService {
     }
 
     private static async extractImage(page: Page): Promise<Buffer | string | null> {
-        const startTime = Date.now();
+        const maxAttempts = 5;
+        let imgSrc: string | null = null;
 
-        // while (Date.now() - startTime < GeminiService.TIMEOUT) {
-        const imgSrc = await page.evaluate(() => {
-            const div = document.querySelector("div.chat-session-content");
-            if (div && div.children.length > 1) {
-                const secondLast = div.children[div.children.length - 2] as HTMLElement;
-                const img = secondLast.querySelector("img");
-                return img ? img.src : null;
-            }
-            return null;
-        });
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            imgSrc = await page.evaluate(() => {
+                const div = document.querySelector("div.chat-session-content");
+                if (div && div.children.length > 1) {
+                    const secondLast = div.children[div.children.length - 2] as HTMLElement;
+                    const img = secondLast.querySelector("img");
+                    return img ? img.src : null;
+                }
+                return null;
+            });
 
-        if (imgSrc && typeof imgSrc === "string" && imgSrc.startsWith("data:image/")) {
-            const parts = imgSrc.split(",");
-            if (parts.length > 1) {
-                return Buffer.from(parts[1], "base64");
+            if (imgSrc && typeof imgSrc === "string" && imgSrc.startsWith("data:image/")) {
+                const parts = imgSrc.split(",");
+                if (parts.length > 1) {
+                    return Buffer.from(parts[1], "base64");
+                }
             }
+
+            // Jika sudah dapat img, break
+            if (imgSrc) break;
+
+            // Tunggu 1 detik sebelum mencoba lagi
+            await new Promise((resolve) => setTimeout(resolve, 1000));
         }
 
-        //     await new Promise((resolve) => setTimeout(resolve, 1000));
-        // }
+        // Jika tidak ada image, baru extract text
+        if (!imgSrc) {
+            const text = await page.evaluate(() => {
+                const div = document.querySelector("div.chat-session-content");
+                if (div && div.children.length > 1) {
+                    const secondLast = div.children[div.children.length - 2] as HTMLElement;
+                    const span = secondLast.querySelector(".model-prompt-container span");
+                    return span ? span.textContent?.trim() : secondLast.textContent?.trim();
+                }
+                return null;
+            });
 
-        // If no image found, try to extract text from the response element
-        const text = await page.evaluate(() => {
-            const div = document.querySelector("div.chat-session-content");
-            if (div && div.children.length > 1) {
-                const secondLast = div.children[div.children.length - 2] as HTMLElement;
-                const span = secondLast.querySelector(".model-prompt-container span");
-                return span ? span.textContent?.trim() : secondLast.textContent?.trim();
+            if (text) {
+                return text;
             }
-            return null;
-        });
-
-        if (text) {
-            return text;
         }
 
         return null;
