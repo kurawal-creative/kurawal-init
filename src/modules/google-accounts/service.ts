@@ -4,6 +4,7 @@ import { AppError } from "@/middlewares/error-handler";
 import { getBrowser } from "@/lib/browser";
 import { challengeStore } from "@/lib/challenge-store";
 import path from "path";
+import { getRandomProxy } from "@/lib/proxy";
 
 /**
  * Helper functions for cookie serialization
@@ -111,8 +112,24 @@ export abstract class GoogleAccountsService {
         // Otomatis login Google dan ambil cookie via browser pool
         const { email } = data;
 
-        const browser = await getBrowser(path.join(process.cwd(), "user-data1"));
+        // Ambil proxy random dari Webshare
+        const proxy = await getRandomProxy();
+
+        // Log proxy yang dipakai
+        console.log(`[PROXY] Menggunakan proxy: ${proxy.proxy_address}:${proxy.port} (user: ${proxy.username})`);
+
+        // Pass proxy ke getBrowser
+        const browser = await getBrowser(path.join(process.cwd(), "user-data1"), proxy);
         const page = await browser.newPage();
+
+        // Set proxy authentication jika perlu
+        if (proxy.username && proxy.password) {
+            await page.authenticate({
+                username: proxy.username,
+                password: proxy.password,
+            });
+        }
+
         try {
             const client = await page.target().createCDPSession();
             await client.send("Network.clearBrowserCookies");

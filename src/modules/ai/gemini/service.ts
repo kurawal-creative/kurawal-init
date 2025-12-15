@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 import { decrypt } from "@/lib/encryption";
+import { getRandomProxy } from "@/lib/proxy";
 
 /**
  * Helper functions for cookie serialization
@@ -113,9 +114,24 @@ export class GeminiService {
 
         console.log(`🔑 Using Google Account: ${account.email} (count: ${account.count})`);
 
-        const browser = await getBrowser();
+        // Ambil proxy random dari Webshare
+        const proxy = await getRandomProxy();
+        console.log(`[PROXY] Menggunakan proxy: ${proxy.proxy_address}:${proxy.port} (user: ${proxy.username})`);
+
+        const browser = await getBrowser(undefined, proxy);
+
         const context = await browser.createBrowserContext();
+
         const page = await context.newPage();
+
+        // Set proxy authentication jika perlu
+        if (proxy.username && proxy.password) {
+            await page.authenticate({
+                username: proxy.username,
+                password: proxy.password,
+            });
+        }
+
         try {
             // Load cookie dari database
 
