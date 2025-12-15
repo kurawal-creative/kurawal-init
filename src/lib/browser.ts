@@ -2,6 +2,7 @@ import puppeteer, { Browser, Page } from "puppeteer-core";
 import path from "path";
 import { config } from "@/config";
 import { ProxyData } from "@/lib/proxy";
+import chromium from "@sparticuz/chromium";
 
 let _browser: Browser | null = null;
 
@@ -11,7 +12,7 @@ export async function getBrowser(userDataDir?: string, proxy?: ProxyData): Promi
     const executablePath =
         config.puppeteer.executablePath || //
         (process.platform === "linux" //
-            ? "/usr/bin/google-chrome"
+            ? await chromium.executablePath()
             : "C:/Program Files/Google/chrome/Application/chrome.exe");
 
     const args = [
