@@ -9,8 +9,8 @@ export type ProxyData = {
     password: string;
 };
 
-export async function getRandomProxy(): Promise<ProxyData> {
-    if (!WEBSHARE_API_KEY) throw new Error("WEBSHARE_API_KEY not set in environment");
+export async function getRandomProxy(): Promise<ProxyData | null> {
+    if (!WEBSHARE_API_KEY) return null;
 
     const res = await axios.get("https://proxy.webshare.io/api/v2/proxy/list/?mode=direct&page=1&page_size=25", {
         headers: {
@@ -18,7 +18,7 @@ export async function getRandomProxy(): Promise<ProxyData> {
         },
     });
     const proxies = res.data.results;
-    if (!proxies || proxies.length === 0) throw new Error("No proxies found");
+    if (!proxies || proxies.length === 0) return null;
     const idx = Math.floor(Math.random() * proxies.length);
     return proxies[idx];
 }

@@ -115,17 +115,19 @@ export class GeminiService {
 
         // Ambil proxy dari ENV, format: host:port:user:pass
         const proxyEnv = process.env.PROXY;
-        if (!proxyEnv) {
-            throw new Error("PROXY env variable is not set");
+        let proxy = undefined;
+        if (proxyEnv) {
+            const [proxy_host, proxy_port, proxy_username, proxy_password] = proxyEnv.split(":");
+            proxy = {
+                proxy_address: proxy_host,
+                port: Number(proxy_port),
+                username: proxy_username,
+                password: proxy_password,
+            };
+            console.log(`[PROXY] Menggunakan proxy dari ENV: ${proxy.proxy_address}:${proxy.port} (user: ${proxy.username})`);
+        } else {
+            console.log(`[PROXY] Tidak menggunakan proxy dari ENV`);
         }
-        const [proxy_host, proxy_port, proxy_username, proxy_password] = proxyEnv.split(":");
-        const proxy = {
-            proxy_address: proxy_host,
-            port: Number(proxy_port),
-            username: proxy_username,
-            password: proxy_password,
-        };
-        console.log(`[PROXY] Menggunakan proxy dari ENV: ${proxy.proxy_address}:${proxy.port} (user: ${proxy.username})`);
 
         const browser = await getBrowser(undefined, proxy);
 
@@ -134,7 +136,7 @@ export class GeminiService {
         const page = await context.newPage();
 
         // Set proxy authentication jika perlu
-        if (proxy.username && proxy.password) {
+        if (proxy && proxy.username && proxy.password) {
             await page.authenticate({
                 username: proxy.username,
                 password: proxy.password,

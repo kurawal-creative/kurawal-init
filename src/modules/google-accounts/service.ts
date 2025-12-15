@@ -112,18 +112,22 @@ export abstract class GoogleAccountsService {
         // Otomatis login Google dan ambil cookie via browser pool
         const { email } = data;
 
-        // Ambil proxy random dari Webshare
+        // Ambil proxy random dari Webshare, jika gagal/null lanjut tanpa proxy
         const proxy = await getRandomProxy();
 
-        // Log proxy yang dipakai
-        console.log(`[PROXY] Menggunakan proxy: ${proxy.proxy_address}:${proxy.port} (user: ${proxy.username})`);
+        if (proxy) {
+            // Log proxy yang dipakai
+            console.log(`[PROXY] Menggunakan proxy: ${proxy.proxy_address}:${proxy.port} (user: ${proxy.username})`);
+        } else {
+            console.log(`[PROXY] Tidak menggunakan proxy (getRandomProxy null/gagal)`);
+        }
 
-        // Pass proxy ke getBrowser
+        // Pass proxy ke getBrowser (bisa undefined/null)
         const browser = await getBrowser(path.join(process.cwd(), "user-data1"), proxy);
         const page = await browser.newPage();
 
         // Set proxy authentication jika perlu
-        if (proxy.username && proxy.password) {
+        if (proxy && proxy.username && proxy.password) {
             await page.authenticate({
                 username: proxy.username,
                 password: proxy.password,
